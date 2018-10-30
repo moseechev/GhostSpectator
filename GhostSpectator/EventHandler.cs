@@ -9,11 +9,12 @@ using System.Linq;
 
 namespace Smod.GhostSpectatorPlugin
 {
-	class EventHandler : IEventHandlerSetRole, IEventHandlerTeamRespawn, IEventHandlerRoundStart, IEventHandlerPlayerHurt, IEventHandlerShoot, IEventHandlerFixedUpdate, IEventHandlerPlayerDropItem
+	class EventHandler : IEventHandlerSetConfig, IEventHandlerSpawnRagdoll, IEventHandlerSetRole, IEventHandlerSummonVehicle, IEventHandlerTeamRespawn, IEventHandlerRoundStart, IEventHandlerPlayerHurt, IEventHandlerShoot, IEventHandlerFixedUpdate, IEventHandlerPlayerPickupItem, IEventHandlerPlayerDropItem, IEventHandlerRecallZombie
 	{
 		private Plugin plugin;
 		public static int maxRespawnAmount;
 		public static bool allowGhostToDamage;
+		public static bool allowPickup;
 
 		public class ShowGhost
 		{
@@ -22,7 +23,18 @@ namespace Smod.GhostSpectatorPlugin
 			public float remainingTime;
 		}
 
+		public class Ghost
+		{
+			public int playerId;
+
+			public float remainingTime;
+
+			public Vector spawnPos;
+		}
+
 		public List<ShowGhost> ghostList = new List<ShowGhost>();
+
+		public List<Ghost> spawnGhost = new List<Ghost>();
 
 		public EventHandler(Plugin plugin)
 		{
@@ -33,16 +45,29 @@ namespace Smod.GhostSpectatorPlugin
 		{
 			maxRespawnAmount = ConfigManager.Manager.Config.GetIntValue("maximum_MTF_respawn_amount", 15);
 			allowGhostToDamage = ConfigManager.Manager.Config.GetBoolValue("gs_allow_ghost_to_dmg", false);
+			allowPickup = ConfigManager.Manager.Config.GetBoolValue("gs_allow_ghost_to_pickup", true);
+		}
+
+		public void OnSpawnRagdoll(PlayerSpawnRagdollEvent ev)
+		{
+			spawnGhost.Add(new Ghost { playerId = ev.Player.PlayerId, remainingTime = 3f, spawnPos = ev.Position });
+		}
+
+		public void OnSetConfig(SetConfigEvent ev)
+		{
+			if (ev.Key.Equals("scp173_ignored_role") || ev.Key.Equals("scp096_ignored_role"))
+			{
+				ev.Value = new List<int> { 2, 14 };
+			}
 		}
 
 		public void OnSetRole(PlayerSetRoleEvent ev)
 		{
 			if (ev.Role == Role.SPECTATOR)
 			{
-				ev.Role = Role.TUTORIAL;
-				ghostList.Add(new ShowGhost { playerId = ev.Player.PlayerId, remainingTime = 3f });
+				spawnGhost.Add(new Ghost { playerId = ev.Player.PlayerId, remainingTime = 3f, spawnPos = Vector.Zero });
 			}
-			else if (ev.Role == Role.TUTORIAL)
+			if (ev.Role == Role.TUTORIAL)
 			{
 				ev.Player.SetGhostMode(true);
 				ev.Player.SetGodmode(true);
@@ -55,6 +80,21 @@ namespace Smod.GhostSpectatorPlugin
 					ev.Player.SetGhostMode(false);
 				if (ev.Player.GetGodmode())
 					ev.Player.SetGodmode(false);
+			}
+		}
+
+		public void OnSummonVehicle(SummonVehicleEvent ev)
+		{
+			if (!ev.AllowSummon)
+			{
+				foreach (Player player in plugin.pluginManager.Server.GetPlayers())
+				{
+					if (player.TeamRole.Team == Team.TUTORIAL)
+					{
+						ev.AllowSummon = true;
+						return;
+					}
+				}
 			}
 		}
 
@@ -110,34 +150,59 @@ namespace Smod.GhostSpectatorPlugin
 				ghostList[i].remainingTime -= 0.02f;
 				if (ghostList[i].remainingTime <= 0)
 				{
-					foreach (Player player in plugin.pluginManager.Server.GetPlayers())
+					foreach (Player player in (from item in plugin.pluginManager.Server.GetPlayers()
+											   where (item.PlayerId == ghostList[i].playerId && item.TeamRole.Team == Team.TUTORIAL)
+											   select item).ToList())
 					{
-						if (player.PlayerId == ghostList[i].playerId && player.TeamRole.Team == Team.TUTORIAL)
-						{
-							player.SetGhostMode(true);
-							player.SetGodmode(true);
-							player.SetRadioBattery(999);
-							bool hasRadio = false, hasCoin = false;
-							foreach(Item item in player.GetInventory())
-							{
-								if (item.ItemType == ItemType.RADIO)
-								{
-									hasRadio = true;
-								}
-								if (item.ItemType == ItemType.COIN)
-								{
-									hasCoin = true;
-								}
-							}
-							if (!hasRadio)
-								player.GiveItem(ItemType.RADIO);
-							if (!hasCoin)
-								player.GiveItem(ItemType.COIN);
-						}
+						player.SetGhostMode(true);
 					}
 					ghostList.RemoveAt(i);
-					return;
 				}
+			}
+
+			for (int i = 0; i < spawnGhost.Count; i++)
+			{
+				spawnGhost[i].remainingTime -= 0.02f;
+				if (spawnGhost[i].remainingTime <= 0)
+				{
+					foreach (Player player in (from item in plugin.pluginManager.Server.GetPlayers()
+											   where (item.PlayerId == spawnGhost[i].playerId)
+											   select item).ToList())
+					{
+						player.ChangeRole(Role.TUTORIAL);
+						player.SetGhostMode(true);
+						player.SetGodmode(true);
+						player.SetRadioBattery(999);
+						bool hasRadio = false, hasCoin = false;
+						foreach (Item item in player.GetInventory())
+						{
+							if (item.ItemType == ItemType.RADIO)
+							{
+								hasRadio = true;
+							}
+							if (item.ItemType == ItemType.COIN)
+							{
+								hasCoin = true;
+							}
+						}
+						if (!hasRadio)
+							player.GiveItem(ItemType.RADIO);
+						if (!hasCoin)
+							player.GiveItem(ItemType.COIN);
+						if (spawnGhost[i].spawnPos != Vector.Zero)
+							player.Teleport(spawnGhost[i].spawnPos);
+					}
+					spawnGhost.RemoveAt(i);
+				}
+			}
+		}
+
+		public void OnPlayerPickupItem(PlayerPickupItemEvent ev)
+		{
+			if (!allowPickup && ev.Player.TeamRole.Role == Role.TUTORIAL)
+			{
+				ev.Allow = false;
+				plugin.pluginManager.Server.Map.SpawnItem(ev.Item.ItemType, ev.Player.GetPosition(), Vector.Zero);
 			}
 		}
 
@@ -157,6 +222,15 @@ namespace Smod.GhostSpectatorPlugin
 
 				ev.ChangeTo = ItemType.NULL;
 				ev.Player.GiveItem(ItemType.COIN);
+			}
+		}
+
+		public void OnRecallZombie(PlayerRecallZombieEvent ev)
+		{
+			if (ev.Target.TeamRole.Team == Team.TUTORIAL)
+			{
+				ev.AllowRecall = true;
+				ev.Target.SetGhostMode(false);
 			}
 		}
 	}

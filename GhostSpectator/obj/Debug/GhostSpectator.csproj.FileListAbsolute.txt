@@ -15,3 +15,12 @@ I:\SMOD\Github\GhostSpectator\GhostSpectator\GhostSpectator\obj\Debug\GhostSpect
 I:\SMOD\Github\GhostSpectator\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.csproj.CoreCompileInputs.cache
 I:\SMOD\Github\GhostSpectator\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.dll
 I:\SMOD\Github\GhostSpectator\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.pdb
+D:\Github\GhostSpectator\GhostSpectator\Debug\GhostSpectator.dll
+D:\Github\GhostSpectator\GhostSpectator\Debug\GhostSpectator.pdb
+D:\Github\GhostSpectator\GhostSpectator\Debug\Smod2.dll
+D:\Github\GhostSpectator\GhostSpectator\Debug\Smod2.pdb
+D:\Github\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.csprojResolveAssemblyReference.cache
+D:\Github\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.csproj.CoreCompileInputs.cache
+D:\Github\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.csproj.CopyComplete
+D:\Github\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.dll
+D:\Github\GhostSpectator\GhostSpectator\obj\Debug\GhostSpectator.pdb

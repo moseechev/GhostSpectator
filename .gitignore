@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vs/GhostSpectator/v15/.suo
+.vs/GhostSpectator/v15/Server/sqlite3/db.lock
+.vs/GhostSpectator/v15/Server/sqlite3/storage.ide-shm
+.vs/GhostSpectator/v15/Server/sqlite3/storage.ide
+.vs/GhostSpectator/v15/Server/sqlite3/storage.ide-wal
+GhostSpectator/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+GhostSpectator/obj/Debug/GhostSpectator.csproj.FileListAbsolute.txt
+GhostSpectator/obj/Debug/GhostSpectator.csproj.CoreCompileInputs.cache
+GhostSpectator/obj/Debug/GhostSpectator.csprojResolveAssemblyReference.cache
