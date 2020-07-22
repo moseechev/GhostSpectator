@@ -12,7 +12,8 @@ If ghosts should not interact with doors or elevators
 `gs_block_doors_for_ghosts: true`
 
 Broadcast, that Ghosts get on spawn
-gs_spawn_broadcast: <size=40>You've been spawned as a <color=#9E9E9E>Ghost</color>! \n Drop the <color=#ABFDFF>coin</color> to teleport to random <color=green>player</color>.</size> <size=25>\n You <color=red>cannot</color> pickup or drop <color=lime>items</color>. \n You <color=red>cannot</color> interact with <color=#FFFA5A>doors</color> or <color=#FFFA5A>elevators</color>. \n You <color=lime>can</color> talk to others. \n You will <color=lime>respawn</color> soon.</size>
+
+`gs_spawn_broadcast: <size=40>You've been spawned as a <color=#9E9E9E>Ghost</color>! \n Drop the <color=#ABFDFF>coin</color> to teleport to random <color=green>player</color>.</size> <size=25>\n You <color=red>cannot</color> pickup or drop <color=lime>items</color>. \n You <color=red>cannot</color> interact with <color=#FFFA5A>doors</color> or <color=#FFFA5A>elevators</color>. \n You <color=lime>can</color> talk to others. \n You will <color=lime>respawn</color> soon.</size>`
 
 Time of broadcast, that ghosts get on spawn
 
